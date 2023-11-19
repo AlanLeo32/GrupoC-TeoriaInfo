@@ -21,17 +21,17 @@ function leeArchivo(prob, canal) {
 
         for (let k=0; k<palabras.length; k++) {
             switch (k) {
-                case 0: prob[0] = palabras[k];
+                case 0: prob[0] = parseFloat(palabras[k]);
                     break;
-                case 1: prob[1] = palabras[k];
+                case 1: prob[1] = parseFloat(palabras[k]);
                     break;
-                case 2: canal[0][0] = palabras[k];
+                case 2: canal[0][0] = parseFloat(palabras[k]);
                     break;
-                case 3: canal[0][1] = palabras[k];
+                case 3: canal[0][1] = parseFloat(palabras[k]);
                     break;
-                case 4: canal[1][0] = palabras[k];
+                case 4: canal[1][0] = parseFloat(palabras[k]);
                     break;
-                case 5: canal[1][1] = palabras[k];
+                case 5: canal[1][1] = parseFloat(palabras[k]);
                     break;            
             }
         }
@@ -49,10 +49,14 @@ function calculoProbDeUnCanal(probB,prob,canal){
 }
 //ecuacion 3
 function calculoProbConociendoLlegada(probB,prob,canal,probArespectoB){
-    probArespectoB[0][0]=(prob[0]*canal[0][0])/probB[0];
-    probArespectoB[0][1]=(prob[0]*canal[0][1])/probB[1];
-    probArespectoB[1][0]=(prob[1]*canal[1][0])/probB[0];
-    probArespectoB[1][1]=(prob[1]*canal[1][1])/probB[1];
+    if(probB[0]!=0){
+        probArespectoB[0][0]=(prob[0]*canal[0][0])/probB[0];
+        probArespectoB[1][0]=(prob[1]*canal[1][0])/probB[0];
+    }
+    if(probB[1]!=0){
+        probArespectoB[0][1]=(prob[0]*canal[0][1])/probB[1];
+        probArespectoB[1][1]=(prob[1]*canal[1][1])/probB[1];
+    }
 }
 //ecuacion 4
 function calculoProbSucesosSimultaneos(prob,canal,probSuceso){
@@ -62,35 +66,92 @@ function calculoProbSucesosSimultaneos(prob,canal,probSuceso){
     probSuceso[1][1]=prob[1]*canal[1][1];
 }
 function Equivocacion(probSuceso,probArespectoB,canal,equivocacion){
-    // equivocacion 0 es H[A/B]   equivocacion 1 es H[B/A]
-    equivocacion[0]=probSuceso[0][0]*Math.log2(1/probArespectoB[0][0])+probSuceso[0][1]*Math.log2(1/probArespectoB[0][1])+probSuceso[1][0]*Math.log2(1/probArespectoB[1][0])+probSuceso[1][1]*Math.log2(1/probArespectoB[1][1]);
-    equivocacion[1]=probSuceso[0][0]*Math.log2(1/canal[0][0])+probSuceso[0][1]*Math.log2(1/canal[0][1])+probSuceso[1][0]*Math.log2(1/canal[1][0])+probSuceso[1][1]*Math.log2(1/canal[1][1]);
+    // equivocacion 0 es H[A/B]   
+    if(probArespectoB[0][0]!=0){
+        equivocacion[0]=probSuceso[0][0]*Math.log2(1/probArespectoB[0][0]);
+    }
+    if(probArespectoB[0][1]!=0){
+        equivocacion[0]+=probSuceso[0][1]*Math.log2(1/probArespectoB[0][1]);
+    }
+    if(probArespectoB[1][0]!=0){
+        equivocacion[0]+=probSuceso[1][0]*Math.log2(1/probArespectoB[1][0]);
+    }
+    if(probArespectoB[1][1]!=0){
+        equivocacion[0]+=probSuceso[1][1]*Math.log2(1/probArespectoB[1][1]);
+    }
+
+    // equivocacion 1 es H[B/A]
+    if(canal[0][0]!=0){
+        equivocacion[1]=probSuceso[0][0]*Math.log2(1/canal[0][0]);
+    }
+    if(canal[0][1]!=0){
+        equivocacion[1]+=probSuceso[0][1]*Math.log2(1/canal[0][1]);
+    }
+    if(canal[1][0]!=0){
+        equivocacion[1]+=probSuceso[1][0]*Math.log2(1/canal[1][0]);
+    }
+    if(canal[1][1]!=0){
+        equivocacion[1]+=probSuceso[1][1]*Math.log2(1/canal[1][1]);
+    }
+   
 }
 function entropiaAPriori(probabilidad){
-    return probabilidad[0]*Math.log2(1/probabilidad[0])+probabilidad[1]*Math.log2(1/probabilidad[1]);
+    let hApriori=0;
+    if(probabilidad[0]!=0){
+        hApriori=probabilidad[0]*Math.log2(1/probabilidad[0]);
+    }
+    if(probabilidad[1]!=0){
+        hApriori+=probabilidad[1]*Math.log2(1/probabilidad[1]);
+    }
+    return hApriori;
 }
-function informacionMutua(entropia,equivocacion){
-    return entropia-equivocacion;
+function informacionMutua(entropia,equi){
+    return entropia-equi;
 }
 function entropiaAPosteriori(probArespectoB,canal,hAposteriori){
-    //H(A/b1)     H(A/b2)
-    hAposteriori[0][0]=probArespectoB[0][0]*Math.log2(1/probArespectoB[0][0])+probArespectoB[1][0]*Math.log2(1/probArespectoB[1][0]);
-    hAposteriori[0][1]=probArespectoB[0][1]*Math.log2(1/probArespectoB[0][1])+probArespectoB[1][1]*Math.log2(1/probArespectoB[1][1]);
+    //H(A/b1)     
+    if(probArespectoB[0][0]!=0){
+        hAposteriori[0][0]=probArespectoB[0][0]*Math.log2(1/probArespectoB[0][0]);
+    }
+    if(probArespectoB[1][0]!=0){
+        hAposteriori[0][0]+=probArespectoB[1][0]*Math.log2(1/probArespectoB[1][0]);
+    }
+    
+    //H(A/b2)
+    if(probArespectoB[0][1]!=0){
+        hAposteriori[0][1]=probArespectoB[0][1]*Math.log2(1/probArespectoB[0][1]);
+    }
+    if(probArespectoB[1][1]!=0){
+        hAposteriori[0][1]+=probArespectoB[1][1]*Math.log2(1/probArespectoB[1][1]);
+    }
 
-     //H(B/a1)     H(B/a2)
-    hAposteriori[1][0]=canal[0][0]*Math.log2(1/canal[0][0])+canal[0][1]*Math.log2(1/canal[0][1]);
-    hAposteriori[1][1]=canal[1][0]*Math.log2(1/canal[1][0])+canal[1][1]*Math.log2(1/canal[1][1]);
+     //H(B/a1)     
+    if(canal[0][0]!=0){
+        hAposteriori[1][0]=canal[0][0]*Math.log2(1/canal[0][0]);
+    }
+    if(canal[0][1]!=0){
+        hAposteriori[1][0]+= +canal[0][1]*Math.log2(1/canal[0][1]);
+    }
+   
+    //H(B/a2)
+    if(canal[1][0]!=0){
+        hAposteriori[1][1]=canal[1][0]*Math.log2(1/canal[1][0]);
+    }
+    if(canal[1][1]!=0){
+        hAposteriori[1][1]+=canal[1][1]*Math.log2(1/canal[1][1]);
+    }
 }
 
 /** PROGRAMA PRINCIPAL */
 let prob = [];                                                              //vector de probabildiades de la fuente
 let canal = [[],[]];                                                        //matriz del canal
-let probB=[];
-let probSuceso=[[],[]];
-let probArespectoB=[[],[]];
-let equivocacion=[[],[]];
-let hAposteriori=[[],[]];
+let probB=Array.from({ length: 2 }, () => 0);                                  
+let probSuceso= Array.from({ length: 2 }, () => Array(2).fill(0));                //iniciliza matriz en 0
+let probArespectoB= Array.from({ length: 2 }, () => Array(2).fill(0));
+let equivocacion=Array.from({ length: 2 }, () => Array(2).fill(0));
+let hAposteriori=Array.from({ length: 2 }, () => Array(2).fill(0));
 let hFuente,hLlegada;
+
 leeArchivo(prob, canal);
 console.log(prob);
 console.log(canal);
@@ -108,7 +169,7 @@ console.log("Equivocacion de A con respecto a B "+equivocacion[0]+"\nEquivocacio
 hFuente=entropiaAPriori(prob);
 hLlegada=entropiaAPriori(probB);
 console.log("Entropia a Priori de A---->"+hFuente);
-console.log("Entropia a Posteriori de B---->"+hLlegada);
+console.log("Entropia a Priori de B---->"+hLlegada);
 //Las informaciones deberias ser iguales
 console.log("Informacion mutua I(A,B)---->"+informacionMutua(hFuente,equivocacion[0]));
 console.log("Informacion mutua I(B,A)---->"+informacionMutua(hLlegada,equivocacion[1]));
