@@ -81,6 +81,7 @@ function entropiaAPosteriori(probArespectoB,canal,hAposteriori){
     hAposteriori[1][0]=canal[0][0]*Math.log2(1/canal[0][0])+canal[0][1]*Math.log2(1/canal[0][1]);
     hAposteriori[1][1]=canal[1][0]*Math.log2(1/canal[1][0])+canal[1][1]*Math.log2(1/canal[1][1]);
 }
+
 /** PROGRAMA PRINCIPAL */
 let prob = [];                                                              //vector de probabildiades de la fuente
 let canal = [[],[]];                                                        //matriz del canal
@@ -93,8 +94,7 @@ let hFuente,hLlegada;
 leeArchivo(prob, canal);
 console.log(prob);
 console.log(canal);
-console.log(N);
-console.log(M);
+
 calculoProbDeUnCanal(probB,prob,canal);
 console.log(probB);
 
@@ -115,3 +115,4 @@ console.log("Informacion mutua I(B,A)---->"+informacionMutua(hLlegada,equivocaci
 
 entropiaAPosteriori(probArespectoB,canal,hAposteriori);
 console.log("Entropia a posteriori A/b1--->"+hAposteriori[0][0]+"\nEntropia a posteriori A/b2--->"+hAposteriori[0][1]+"\nEntropia a posteriori B/a1--->"+hAposteriori[1][0]+"\nEntropia a posteriori B/a2--->"+hAposteriori[1][1]);
+
